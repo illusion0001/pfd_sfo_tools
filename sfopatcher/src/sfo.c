@@ -2,60 +2,28 @@
 #include "list.h"
 #include "util.h"
 
-#if defined(_MSVC)
-#	pragma pack(push, 1)
-#endif
+#include "my_libc.h"
 
-#define SFO_MAGIC   0x46535000u
-#define SFO_VERSION 0x0101u /* 1.1 */
+// keep the author information here
+// even though we never use this
+#define SFOPATCHER_VERSION "0.1.0"
 
-#define SFO_ACCOUNT_ID_SIZE 16
-#define SFO_PSID_SIZE 16
+void show_version(void) {
+	printf("sfopatcher " SFOPATCHER_VERSION " (c) 2012 by flatz\n\n");
+}
 
-typedef struct sfo_header_s {
-	u32 magic;
-	u32 version;
-	u32 key_table_offset;
-	u32 data_table_offset;
-	u32 num_entries;
-} sfo_header_t;
-
-typedef struct sfo_index_table_s {
-	u16 key_offset;
-	u16 param_format;
-	u32 param_length;
-	u32 param_max_length;
-	u32 data_offset;
-} sfo_index_table_t;
-
-typedef struct sfo_param_params_s {
-	u8 unk1[12];
-	u32 unk2;
-	u32 unk3;
-	u32 unk4;
-	u32 user_id_1;
-	u8 psid[SFO_PSID_SIZE];
-	u32 user_id_2;
-	u8 account_id[SFO_ACCOUNT_ID_SIZE];
-	u8 chunk[0];
-} sfo_param_params_t;
-
-#if defined(_MSVC)
-#	pragma pack(pop)
-#endif
-
-typedef struct sfo_context_param_s {
-	char *key;
-	u16 format;
-	u32 length;
-	u32 max_length;
-	size_t actual_length;
-	u8 *value;
-} sfo_context_param_t;
-
-struct sfo_context_s {
-	list_t *params;
-};
+void show_usage(void) {
+	printf("USAGE: sfopatcher command [options]\n");
+	printf("COMMANDS Parameters         Explanation\n");
+	printf(" build   in tpl out         Build a new <out> using an existing <in> and <tpl> as a template\n");
+	printf("   --copy-title             Copy TITLE/SUB_TITLE parameters too\n");
+	printf("   --copy-detail            Copy DETAIL parameter too\n");
+	printf(" patch   in out             Patch an existing <in> and save it to <out>\n");
+	printf("   --remove-copy-protection Remove a copy protected flag\n");
+	printf("\n");
+	printf(" -h, --help                 Print this help\n");
+	printf(" -v, --verbose              Enable verbose output\n");
+}
 
 sfo_context_t * sfo_alloc(void) {
 	sfo_context_t *context;
@@ -146,11 +114,11 @@ int sfo_read(sfo_context_t *context, const char *file_path) {
 				memcpy(param->value, (u8 *)(sfo + header->data_table_offset + index_table->data_offset), param->actual_length);
 			} else {
 				/* TODO */
-				assert(0);
+				// assert(0);
 			}
 		} else {
 			/* TODO */
-			assert(0);
+			// assert(0);
 		}
 
 		list_append(context->params, param);
@@ -191,7 +159,7 @@ int sfo_write(sfo_context_t *context, const char *file_path) {
 
 	for (node = list_head(context->params); node; node = node->next) {
 		param = (sfo_context_param_t *)node->value;
-		assert(param != NULL);
+		// assert(param != NULL);
 
 		key_table_size += strlen(param->key) + 1;
 		data_table_size += param->actual_length;
@@ -217,7 +185,7 @@ int sfo_write(sfo_context_t *context, const char *file_path) {
 
 	for (node = list_head(context->params), key_offset = 0, data_offset = 0, i = 0; node; node = node->next, ++i) {
 		param = (sfo_context_param_t *)node->value;
-		assert(param != NULL);
+		// assert(param != NULL);
 
 		index_table = (sfo_index_table_t *)(sfo + sizeof(sfo_header_t) + i * sizeof(sfo_index_table_t));
 		index_table->key_offset = key_offset;
@@ -232,7 +200,7 @@ int sfo_write(sfo_context_t *context, const char *file_path) {
 
 	for (node = list_head(context->params), i = 0; node; node = node->next, ++i) {
 		param = (sfo_context_param_t *)node->value;
-		assert(param != NULL);
+		// assert(param != NULL);
 
 		index_table = (sfo_index_table_t *)(sfo + sizeof(sfo_header_t) + i * sizeof(sfo_index_table_t));
 		memcpy(sfo + header->key_table_offset + index_table->key_offset, param->key, strlen(param->key) + 1);
@@ -281,6 +249,17 @@ static sfo_context_param_t * sfo_context_get_param(sfo_context_t *context, const
 	return NULL;
 }
 
+u8* sfo_get_param_value(sfo_context_t *in, const char* param) {
+	sfo_context_param_t *p;
+
+	p = sfo_context_get_param(in, param);
+	if (p != NULL) {
+		return (p->value);
+	}
+
+	return NULL;
+}
+
 void sfo_grab(sfo_context_t *inout, sfo_context_t *tpl, int num_keys, const sfo_key_pair_t *keys) {
 	sfo_context_param_t *p1;
 	sfo_context_param_t *p2;
@@ -309,7 +288,7 @@ void sfo_grab(sfo_context_t *inout, sfo_context_t *tpl, int num_keys, const sfo_
 				sfo_param_params_t *params1;
 				sfo_param_params_t *params2;
 
-				assert(p1->actual_length == p2->actual_length);
+				// assert(p1->actual_length == p2->actual_length);
 
 				params1 = (sfo_param_params_t *)p1->value;
 				params2 = (sfo_param_params_t *)p2->value;

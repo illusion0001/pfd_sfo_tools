@@ -48,6 +48,11 @@ typedef int8_t s8;
 #define LE32(_val) ((_val) & 0xffffffffu)
 #define LE64(_val) ((_val) & 0xffffffffffffffffu)
 
+// sus
+#ifdef offsetof
+#undef offsetof
+#endif
+
 #define offsetof(_type, _member) \
      ((size_t)((char *)&((_type *)0)->_member - (char *)0))
 
