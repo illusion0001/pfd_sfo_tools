@@ -9,20 +9,19 @@
 #define SFOPATCHER_VERSION "0.1.0"
 
 void show_version(void) {
-	printf("sfopatcher " SFOPATCHER_VERSION " (c) 2012 by flatz\n\n");
 }
 
 void show_usage(void) {
-	printf("USAGE: sfopatcher command [options]\n");
-	printf("COMMANDS Parameters         Explanation\n");
-	printf(" build   in tpl out         Build a new <out> using an existing <in> and <tpl> as a template\n");
-	printf("   --copy-title             Copy TITLE/SUB_TITLE parameters too\n");
-	printf("   --copy-detail            Copy DETAIL parameter too\n");
-	printf(" patch   in out             Patch an existing <in> and save it to <out>\n");
-	printf("   --remove-copy-protection Remove a copy protected flag\n");
-	printf("\n");
-	printf(" -h, --help                 Print this help\n");
-	printf(" -v, --verbose              Enable verbose output\n");
+	printf("sfopatcher " SFOPATCHER_VERSION " (c) 2012 by flatz\n\n"
+		"USAGE: sfopatcher command [options]\n"
+		"COMMANDS Parameters         Explanation\n"
+		"   build   in tpl out       Build a new <out> using an existing <in> and <tpl> as a template\n"
+		"   --copy-title             Copy TITLE/SUB_TITLE parameters too\n"
+		"   --copy-detail            Copy DETAIL parameter too\n"
+		"   patch   in out           Patch an existing <in> and save it to <out>\n"
+		"   --remove-copy-protection Remove a copy protected flag\n\n"
+		"   -h, --help               Print this help\n"
+		"   -v, --verbose            Enable verbose output\n");
 }
 
 sfo_context_t * sfo_alloc(void) {
